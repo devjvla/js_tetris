@@ -1,0 +1,38 @@
+body {
+    font-family:'Courier New', Courier, monospace
+}
+
+#board {
+    background-color: black;
+    border-radius: 6px;
+    padding: 2px;
+    width: 350px;
+}
+
+.boardRow {
+    display: block;
+    height: 34px;
+    margin-bottom: .5px;
+}
+
+.rowBlock {
+    background-color: rgb(46, 46, 46);
+    border: 1px solid black;
+    border-radius: 4px;
+    display: inline-block;
+    height: 32px;
+    margin: .5px;
+    padding: 0;
+    width: 32px;
+}
+
+.rowBlock.active {
+    background-color: yellow;
+    border: 1px solid black;
+    border-radius: 4px;
+    display: inline-block;
+    height: 32px;
+    margin: .5px;
+    padding: 0;
+    width: 32px;
+}
