@@ -25,7 +25,7 @@ let TETRIS_STYLES = {
     "tetris_0": "rgb(46, 46, 46)",  // Empty
     "tetris_1": "green",            // S-Tetris
     "tetris_2": "crimson",          // Z-Tetris
-    "tetris_3": "violet",           // T-Tetris
+    "tetris_3": "purple",           // T-Tetris
     "tetris_4": "yellow",           // O-Tetris
     "tetris_5": "cyan",             // I-Tetris
     "tetris_6": "royalblue",        // J-Tetris
@@ -179,7 +179,6 @@ let l_tetris = [
     ],
 ]
 
-
 let pieces       = [s_tetris, z_tetris, t_tetris, o_tetris, i_tetris, j_tetris, l_tetris];
 let piece_values = [1, 2, 3, 4, 5, 6, 7];
 
@@ -235,7 +234,17 @@ function gameBoardInterval() {
     
     let interval = setInterval(function() {
         if(y_pos < board.length) {
-            current_piece[random_piece_pos][current_piece[random_piece_pos].length - 1];
+            let piece_last_row = current_piece[random_piece_pos][current_piece[random_piece_pos].length - 1];
+
+            // get index of non-zero
+            let non_zero_idx = 0;
+
+            for(let index = 0; index < piece_last_row.length; index++){
+                if(piece_last_row[index] != 0) {
+                    non_zero_idx = index;
+                    break;
+                }
+            }
 
             if(current_piece[random_piece_pos].length <= (board.length - y_pos)){
                 draw(current_piece[random_piece_pos], y_pos, x_pos);
