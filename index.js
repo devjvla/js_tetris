@@ -17,8 +17,8 @@ let board = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,3,0,0,0,0],
-    [0,0,0,0,3,3,3,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
 ];
 
 let TETRIS_STYLES = {
@@ -184,15 +184,16 @@ let piece_values = [1, 2, 3, 4, 5, 6, 7];
 
 document.addEventListener("DOMContentLoaded", function() {
     // Render the Tetris board
-    const boardElement = document.getElementById("board");
-    boardElement.innerHTML += renderBoard();
+    // const boardElement = document.getElementById("board");
+    // boardElement.innerHTML += renderBoard();
 
     // Check if Left/Right Arrow Keys is pressed
     // document.onkeydown = checkDirection;
 
     // Start game
     // draw(z_tetris[0], 0, 4);
-    gameBoardInterval();
+    // gameBoardInterval();
+    startGame();
 });
 
 function renderBoard() {
@@ -211,86 +212,7 @@ function renderBoard() {
     return boardHTML;
 }
 
-function checkDirection(e) {
-    e = e || window.event;
-
-    if(e.keyCode == "37") {
-        console.log("LEFT");
-    } 
-    else if (e.keyCode == "39") {
-        console.log("RIGHT");
-    }
-}
-
-function gameBoardInterval() {
-    let y_pos              = 0;
-    let x_pos              = 4;
-    // let random_piece_index = Math.floor(Math.random() * pieces.length)
-    // let random_piece_pos   = Math.floor(Math.random() * 4);
-    // let current_piece      = pieces[random_piece_index];
-    let random_piece_pos   = 2
-    let random_piece_index = 1
-    let current_piece      = z_tetris;
-    
-    let interval = setInterval(function() {
-        if(y_pos < board.length) {
-            let piece_last_row = current_piece[random_piece_pos][current_piece[random_piece_pos].length - 1];
-
-            // get index of non-zero
-            let non_zero_idx = 0;
-
-            for(let index = 0; index < piece_last_row.length; index++){
-                if(piece_last_row[index] != 0) {
-                    non_zero_idx = index;
-                    break;
-                }
-            }
-
-            if(current_piece[random_piece_pos].length <= (board.length - y_pos)){
-                draw(current_piece[random_piece_pos], y_pos, x_pos);
-
-                if(y_pos != (board.length - current_piece[random_piece_pos].length)){
-                    setTimeout(() => {
-                        undraw(current_piece[random_piece_pos], piece_values[random_piece_index], y_pos - 1, x_pos);
-                    }, 500);
-                }
-            }
-            
-            // Check if piece is moved left/right/rotated
-            document.onkeydown = function(e) {
-                if(e.key === "ArrowLeft") {
-                    if(x_pos > 0){
-                        x_pos -= 1;
-                    }
-                } 
-                else if (e.key == "ArrowRight") {
-                    if(x_pos < (10 - current_piece[random_piece_pos][0].length)){
-                        x_pos += 1;
-                    }
-                }
-                else if (e.key == "z") {
-                    if((random_piece_pos + 1) > 3) {
-                        random_piece_pos = 0
-                    }
-                    else {
-                        random_piece_pos += 1;
-                    }
-                }
-            };
-
-            y_pos++;
-        }
-        else {
-            // random_piece_index = Math.floor(Math.random() * pieces.length)
-            // current_piece      = pieces[random_piece_index];
-            // random_piece_pos   = Math.floor(Math.random() * 4);
-            // y_pos = 0;
-            // x_pos = 4
-        }
-    }, 900);
-}
-
-function draw(piece, y_pos, x_pos) {
+function drawPiece(piece, y_pos, x_pos) {
     for(let rowCount = 0; rowCount < piece.length; rowCount++) {
         for(let blockCount = 0, start_pos = x_pos; blockCount < piece[rowCount].length; blockCount++) {
             let current_block = document.getElementById(`row_${y_pos}`).children[start_pos];
@@ -307,14 +229,11 @@ function draw(piece, y_pos, x_pos) {
     }
 }
 
-function undraw(piece, piece_value, y_pos, x_pos) {
+function plotPiece(piece, y_pos, x_pos) {
     for(let rowCount = 0; rowCount < piece.length; rowCount++) {
         for(let blockCount = 0, start_pos = x_pos; blockCount < piece[rowCount].length; blockCount++) {
-            let current_block = document.getElementById(`row_${y_pos}`).children[start_pos];
-
-            if(current_block.getAttribute("data-status") == piece_value){
-                current_block.setAttribute("data-status", 0);
-                current_block.setAttribute("style", `background-color: ${TETRIS_STYLES[`tetris_${0}`]};`);
+            if(board[y_pos][start_pos] == 0) {
+                board[y_pos][start_pos] = piece[rowCount][blockCount];
             }
 
             start_pos++;
@@ -324,18 +243,12 @@ function undraw(piece, piece_value, y_pos, x_pos) {
     }
 }
 
-function checkCollision(piece, y_pos, x_pos) {
-    result = false;
-
+function hasCollision(piece, y_pos, x_pos) {
     for(let rowCount = 0; rowCount < piece.length; rowCount++) {
         for(let blockCount = 0, start_pos = x_pos; blockCount < piece[rowCount].length; blockCount++) {
-            let current_block = document.getElementById(`row_${y_pos}`).children[start_pos];
-
-            if(piece[rowCount][blockCount] != 0){
-                if(current_block.getAttribute("data-status") != 0) {
-                    return true;
-                }
-            }            
+            if(piece[rowCount][blockCount] != 0 && board[y_pos][start_pos] != 0){
+                return true;
+            }
 
             start_pos++;
         }
@@ -343,5 +256,66 @@ function checkCollision(piece, y_pos, x_pos) {
         y_pos++;
     }
 
-    return result;
+    return false;
+}
+
+function startGame() {
+    const boardElement     = document.getElementById("board");
+    let y_pos              = 0;
+    let x_pos              = 4;
+    let random_piece_index = Math.floor(Math.random() * pieces.length)
+    let random_piece_pos   = Math.floor(Math.random() * 4);
+    let current_piece      = pieces[random_piece_index];
+
+    // Render board on the DOM
+    let gameInterval = setInterval(() => {
+        boardElement.innerHTML = renderBoard();
+
+        // Check if piece is moved left/right/rotated
+        document.onkeydown = function(e) {
+            if(e.key === "ArrowLeft") {
+                if(x_pos > 0){
+                    x_pos -= 1;
+                }
+            } 
+            else if (e.key == "ArrowRight") {
+                if(x_pos < (10 - current_piece[random_piece_pos][0].length)){
+                    x_pos += 1;
+                }
+            }
+            else if (e.key == "z") {
+                if((random_piece_pos + 1) > 3) {
+                    random_piece_pos = 0
+                }
+                else {
+                    random_piece_pos += 1;
+                }
+            }
+        };
+
+        console.log("random_piece_pos: ", random_piece_pos);
+
+        // Draw tetris piece while it's not at the bottom of the board
+        drawPiece(current_piece[random_piece_pos], y_pos, x_pos);
+        
+        // Check if piece fits in the remaining space
+        // or if piece collides with other pieces
+        if((current_piece[random_piece_pos].length == (board.length - y_pos)) ||
+            // Check collision for next row
+            hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos)
+        ) {
+            plotPiece(current_piece[random_piece_pos], y_pos, x_pos);
+            
+            // Reset y_pos and choose new tetris piece
+            random_piece_index = Math.floor(Math.random() * pieces.length)
+            current_piece      = pieces[random_piece_index];
+            random_piece_pos   = Math.floor(Math.random() * 4);
+            y_pos = 0;
+            x_pos = 4
+
+            // clearInterval(gameInterval);
+        } else {
+            y_pos++;
+        }
+    }, 600);
 }
