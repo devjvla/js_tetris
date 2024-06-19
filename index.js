@@ -256,6 +256,9 @@ document.addEventListener("DOMContentLoaded", function() {
         if((current_piece[random_piece_pos].length == (board.length - y_pos)) || hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos)) {
             plotPiece(current_piece[random_piece_pos], y_pos, x_pos);
             
+            // Check for complete lines
+            clearLines();
+
             // Reset y_pos and choose new tetris piece
             random_piece_index = Math.floor(Math.random() * pieces.length)
             current_piece      = pieces[random_piece_index];
@@ -341,6 +344,15 @@ function hasCollision(piece, y_pos, x_pos) {
     }
 
     return false;
+}
+
+function clearLines() {
+    for(let rowCount = 0; rowCount < board.length; rowCount++) {
+        if(!board[rowCount].includes(0)) {
+            board.splice(rowCount, 1);
+            board.unshift([0,0,0,0,0,0,0,0,0,0]);
+        }
+    }
 }
 
 function startGame() {
