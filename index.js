@@ -157,6 +157,14 @@ const l_tetris = [
 const pieces       = [s_tetris, z_tetris, t_tetris, o_tetris, i_tetris, j_tetris, l_tetris];
 const piece_values = [1, 2, 3, 4, 5, 6, 7];
 
+let score = 0;
+let scores = {
+    "line_1": 40,
+    "line_2": 100,
+    "line_3": 300,
+    "line_4": 1200
+}
+
 let board = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -193,34 +201,48 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Check if piece is moved left/right/rotated
     document.onkeydown = function(e) {
-        if(e.key === "ArrowLeft") {
+        console.log(e.code);
+        if(e.code === "ArrowLeft") {
             if(x_pos > 0){
                 if(!hasCollision(current_piece[random_piece_pos], y_pos, x_pos - 1)){
                     x_pos -= 1;
                 }
             }
         } 
-        else if (e.key == "ArrowRight") {
+        else if (e.code == "ArrowRight") {
             if(x_pos < (10 - current_piece[random_piece_pos][0].length)){
                 if(!hasCollision(current_piece[random_piece_pos], y_pos, x_pos + 1)){
                     x_pos += 1;
                 }
             }
         }
-        else if (e.key == "ArrowDown") {
+        else if (e.code == "ArrowDown") {
             if((current_piece[random_piece_pos].length < (board.length - y_pos)) && !hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos)) {
                 y_pos += 1;
             }
         }
-        else if (e.key == "z") {
-            if((random_piece_pos + 1) > 3) {
-                if(!hasCollision(current_piece[0], y_pos, x_pos)){
-                    random_piece_pos = 0
+        else if (e.code == "KeyZ" || e.code == "KeyX") {
+            if(e.code == "KeyZ") {
+                if((random_piece_pos + 1) > 3) {
+                    if(!hasCollision(current_piece[0], y_pos, x_pos)){
+                        random_piece_pos = 0
+                    }
                 }
-            }
-            else {
-                if(!hasCollision(current_piece[random_piece_pos + 1], y_pos, x_pos)){
-                    random_piece_pos += 1;
+                else {
+                    if(!hasCollision(current_piece[random_piece_pos + 1], y_pos, x_pos)){
+                        random_piece_pos += 1;
+                    }
+                }
+            } else {
+                if((random_piece_pos - 1) < 0) {
+                    if(!hasCollision(current_piece[0], y_pos, x_pos)){
+                        random_piece_pos = 3;
+                    }
+                }
+                else {
+                    if(!hasCollision(current_piece[random_piece_pos - 1], y_pos, x_pos)){
+                        random_piece_pos -= 1;
+                    }
                 }
             }
 
@@ -233,6 +255,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if(current_piece[random_piece_pos].length > (board.length - y_pos)){
                 y_pos = board.length - current_piece[random_piece_pos].length;
             }
+        }
+        else if (e.code == "Space") {
         }
 
         boardElement.innerHTML = renderBoard();
@@ -250,9 +274,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // Draw tetris piece while it's not at the bottom of the board
         drawPiece(current_piece[random_piece_pos], y_pos, x_pos);
         
-        // Check if piece fits in the remaining space
-        // or if piece collides with other pieces
-        // Check collision for next row
+        // Check if piece fits in the remaining space or if piece collides with other pieces
         if((current_piece[random_piece_pos].length == (board.length - y_pos)) || hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos)) {
             plotPiece(current_piece[random_piece_pos], y_pos, x_pos);
             
@@ -270,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             y_pos++;
         }
-    }, 600);
+    }, intervalDelay);
 });
 
 function renderBoard() {
@@ -347,11 +369,21 @@ function hasCollision(piece, y_pos, x_pos) {
 }
 
 function clearLines() {
+    const score_label = document.getElementById("score");
+    let linesCount = 0;
+
     for(let rowCount = 0; rowCount < board.length; rowCount++) {
         if(!board[rowCount].includes(0)) {
             board.splice(rowCount, 1);
             board.unshift([0,0,0,0,0,0,0,0,0,0]);
+
+            linesCount += 1;
         }
+    }
+
+    if(linesCount) {
+        score += scores[`line_${linesCount}`];
+        score_label.innerHTML = `Score: ${score}`;
     }
 }
 
