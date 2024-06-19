@@ -158,18 +158,18 @@ const pieces       = [s_tetris, z_tetris, t_tetris, o_tetris, i_tetris, j_tetris
 const piece_values = [1, 2, 3, 4, 5, 6, 7];
 
 let board = [
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
-    // [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -195,28 +195,33 @@ document.addEventListener("DOMContentLoaded", function() {
     document.onkeydown = function(e) {
         if(e.key === "ArrowLeft") {
             if(x_pos > 0){
-                x_pos -= 1;
+                if(!hasCollision(current_piece[random_piece_pos], y_pos, x_pos - 1)){
+                    x_pos -= 1;
+                }
             }
         } 
         else if (e.key == "ArrowRight") {
             if(x_pos < (10 - current_piece[random_piece_pos][0].length)){
-                x_pos += 1;
+                if(!hasCollision(current_piece[random_piece_pos], y_pos, x_pos + 1)){
+                    x_pos += 1;
+                }
             }
         }
         else if (e.key == "ArrowDown") {
-            console.log(hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos));
-            if((current_piece[random_piece_pos].length < (board.length - y_pos)) &&
-                !hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos)
-            ) {
+            if((current_piece[random_piece_pos].length < (board.length - y_pos)) && !hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos)) {
                 y_pos += 1;
             }
         }
         else if (e.key == "z") {
             if((random_piece_pos + 1) > 3) {
-                random_piece_pos = 0
+                if(!hasCollision(current_piece[0], y_pos, x_pos)){
+                    random_piece_pos = 0
+                }
             }
             else {
-                random_piece_pos += 1;
+                if(!hasCollision(current_piece[random_piece_pos + 1], y_pos, x_pos)){
+                    random_piece_pos += 1;
+                }
             }
 
             // Adjust x_pos of piece if it doesn't fit in the board
@@ -239,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // drawPiece(current_piece[random_piece_pos], y_pos, x_pos);
 
-    setInterval(() => {
+    let gameInterval = setInterval(() => {
         boardElement.innerHTML = renderBoard();
 
         // Draw tetris piece while it's not at the bottom of the board
@@ -247,10 +252,8 @@ document.addEventListener("DOMContentLoaded", function() {
         
         // Check if piece fits in the remaining space
         // or if piece collides with other pieces
-        if((current_piece[random_piece_pos].length == (board.length - y_pos)) ||
-            // Check collision for next row
-            hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos)
-        ) {
+        // Check collision for next row
+        if((current_piece[random_piece_pos].length == (board.length - y_pos)) || hasCollision(current_piece[random_piece_pos], y_pos + 1, x_pos)) {
             plotPiece(current_piece[random_piece_pos], y_pos, x_pos);
             
             // Reset y_pos and choose new tetris piece
@@ -315,6 +318,16 @@ function plotPiece(piece, y_pos, x_pos) {
 }
 
 function hasCollision(piece, y_pos, x_pos) {
+    // Adjust x_pos of piece if it doesn't fit in the board
+    if(piece[0].length > (board[y_pos].length - x_pos)){
+        x_pos = board[y_pos].length - piece[0].length;
+    }
+
+    // Adjust y_pos of piece if it doesn't fit in the board
+    if(piece.length > (board.length - y_pos)){
+        y_pos = board.length - piece.length;
+    }
+
     for(let rowCount = 0; rowCount < piece.length; rowCount++) {
         for(let blockCount = 0, start_pos = x_pos; blockCount < piece[rowCount].length; blockCount++) {
             if(piece[rowCount][blockCount] != 0 && board[y_pos][start_pos] != 0){
