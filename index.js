@@ -1,4 +1,5 @@
 const TETRIS_STYLES = {
+    "tetris_highlight": "rgb(75, 75, 75)",
     "tetris_0": "rgb(46, 46, 46)",  // Empty
     "tetris_1": "green",            // S-Tetris
     "tetris_2": "crimson",          // Z-Tetris
@@ -267,6 +268,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         boardElement.innerHTML = renderBoard();
+        drawPieceHighlight(current_piece[random_piece_pos], y_pos, x_pos);
         drawPiece(current_piece[random_piece_pos], y_pos, x_pos);
     };
 
@@ -274,6 +276,7 @@ document.addEventListener("DOMContentLoaded", function() {
         boardElement.innerHTML = renderBoard();
 
         // Draw tetris piece while it's not at the bottom of the board
+        drawPieceHighlight(current_piece[random_piece_pos], y_pos, x_pos);
         drawPiece(current_piece[random_piece_pos], y_pos, x_pos);
         
         // Check if piece fits in the remaining space or if piece collides with other pieces
@@ -301,7 +304,7 @@ function renderBoard() {
         boardHTML += `<div id='row_${rowCount}' class='boardRow'>`;
 
         row.forEach((value, index) => {
-            boardHTML += `<div class='rowBlock' data-status='${value}' style='background-color: ${TETRIS_STYLES[`tetris_${value}`]};'>${rowCount}/${index}</div>`;
+            boardHTML += `<div class='rowBlock' data-status='${value}' style='background-color: ${TETRIS_STYLES[`tetris_${value}`]};'></div>`;
         });
 
         boardHTML += "</div>";
@@ -310,14 +313,15 @@ function renderBoard() {
     return boardHTML;
 }
 
-function drawPiece(piece, y_pos, x_pos) {
+function drawPiece(piece, y_pos, x_pos, isHighlight = false) {
     for(let rowCount = 0; rowCount < piece.length; rowCount++) {
         for(let blockCount = 0, start_pos = x_pos; blockCount < piece[rowCount].length; blockCount++) {
             let current_block = document.getElementById(`row_${y_pos}`).children[start_pos];
 
             if(piece[rowCount][blockCount] != 0){
-                current_block.setAttribute("data-status", piece[rowCount][blockCount]);
-                current_block.setAttribute("style", `background-color: ${TETRIS_STYLES[`tetris_${piece[rowCount][blockCount]}`]};`);
+                let tetris_style_value = isHighlight ? "highlight" : piece[rowCount][blockCount];
+                current_block.setAttribute("data-status", tetris_style_value);
+                current_block.setAttribute("style", `background-color: ${TETRIS_STYLES[`tetris_${tetris_style_value}`]};`);
             }
 
             start_pos++;
@@ -325,6 +329,12 @@ function drawPiece(piece, y_pos, x_pos) {
         
         y_pos++;
     }
+}
+
+function drawPieceHighlight(piece, y_pos, x_pos) {
+    let new_y_pos = hardDrop(piece, y_pos, x_pos);
+
+    drawPiece(piece, new_y_pos, x_pos, true);
 }
 
 function plotPiece(piece, y_pos, x_pos) {
