@@ -223,6 +223,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     random_piece_pos = 0
                 }
                 else {
+                    // Check if it will have a collision on the next piece position
                     if(!hasCollision(current_piece[random_piece_pos + 1], y_pos, x_pos)){
                         random_piece_pos += 1;
                     }
@@ -232,6 +233,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     random_piece_pos = 3;
                 }
                 else {
+                    // Check if it will have a collision on the next piece position
                     if(!hasCollision(current_piece[random_piece_pos - 1], y_pos, x_pos)){
                         random_piece_pos -= 1;
                     }
